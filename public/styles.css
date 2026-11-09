@@ -95,6 +95,11 @@ button:hover {
 
 #saves {
   margin-top: 32px;
+  padding: 24px 16px 0;
+  background: #1e1a2b;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
 }
 
 #saves h2 {
@@ -176,31 +181,41 @@ button:hover {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0));
 }
 
+#podium {
+  --unit: clamp(70px, 11vh, 120px);
+}
+
 .pedestal.gold {
-  height: 110px;
+  height: calc(var(--unit) * 2.2);
   background: linear-gradient(180deg, #ffe27a, #d4a017);
 }
 
 .pedestal.silver {
-  height: 80px;
+  height: calc(var(--unit) * 1.6);
   background: linear-gradient(180deg, #e6e6e6, #9a9a9a);
 }
 
 .pedestal.bronze {
-  height: 60px;
+  height: calc(var(--unit) * 1.2);
   background: linear-gradient(180deg, #e0a070, #a0622d);
 }
 
-.place:nth-child(2) .drink::before {
+.place:nth-child(2) .drink:has(img)::before {
   content: "";
   position: absolute;
-  top: -30px;
+  top: -50px;
   left: 50%;
   transform: translateX(-50%);
-  width: 140px;
-  height: 140px;
-  background: radial-gradient(circle, rgba(255, 209, 102, 0.55), rgba(255, 209, 102, 0));
+  width: 240px;
+  height: 260px;
+  background: radial-gradient(
+    ellipse closest-side,
+    rgba(255, 209, 102, 0.5),
+    rgba(255, 209, 102, 0.18) 60%,
+    rgba(255, 209, 102, 0) 100%
+  );
   z-index: -1;
+  pointer-events: none;
 }
 
 @media (max-width: 480px) {

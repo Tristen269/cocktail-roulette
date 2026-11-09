@@ -1,16 +1,33 @@
 const KEY = "cocktailSaves";
 const MAX_SAVES = 3;
 
+// Saves are stored as 3 fixed slots: [gold, silver, bronze].
+// An empty slot is null, so removing a drink never shifts the others.
+// Old saves (a plain list with no nulls) are converted automatically.
 function getSaves() {
+  let raw;
   try {
-    return JSON.parse(localStorage.getItem(KEY)) || [];
+    raw = JSON.parse(localStorage.getItem(KEY));
   } catch (e) {
-    return [];
+    raw = null;
   }
+
+  const slots = [];
+  for (let i = 0; i < MAX_SAVES; i++) {
+    const item = Array.isArray(raw) ? raw[i] : null;
+    slots.push(item && typeof item === "object" ? item : null);
+  }
+  return slots;
 }
 
 function setSaves(saves) {
   localStorage.setItem(KEY, JSON.stringify(saves));
+}
+
+function celebrate() {
+  if (typeof confetti !== "function") return;
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  confetti({ particleCount: 90, spread: 70, origin: { y: 0.7 } });
 }
 
 function showDrinkDetails(drink) {
@@ -67,7 +84,9 @@ function renderSaves() {
     remove.className = "remove-btn";
     remove.textContent = "Remove";
     remove.addEventListener("click", function () {
-      setSaves(getSaves().filter(function (d) { return d.id !== drink.id; }));
+      const current = getSaves();
+      current[i] = null; // empty just this slot, leave the others where they are
+      setSaves(current);
       hideDrinkDetails();
       renderSaves();
     });
@@ -84,16 +103,18 @@ if (saveBtn) {
     const message = document.getElementById("save-message");
     const drink = JSON.parse(saveBtn.dataset.cocktail);
     const saves = getSaves();
+    const emptySlot = saves.indexOf(null);
 
-    if (saves.some(function (d) { return d.id === drink.id; })) {
+    if (saves.some(function (d) { return d && d.id === drink.id; })) {
       message.textContent = "Already saved!";
-    } else if (saves.length >= MAX_SAVES) {
+    } else if (emptySlot === -1) {
       message.textContent = "You've got 3 saves. Remove one to add another.";
     } else {
-      saves.push(drink);
+      saves[emptySlot] = drink; // goes into the first open slot
       setSaves(saves);
       message.textContent = "Saved!";
       renderSaves();
+      celebrate();
     }
   });
 }
