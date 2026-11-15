@@ -360,3 +360,84 @@ a.badge:hover {
 #close-details {
   margin-top: 12px;
 }
+
+
+/* ---------- dragging drinks between podium slots ---------- */
+.drink img {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+.drink img.dragging {
+  opacity: 0.35;
+  cursor: grabbing;
+}
+
+.drag-ghost {
+  position: fixed;
+  z-index: 1000;
+  object-fit: cover;
+  border-radius: 10px;
+  pointer-events: none;
+  opacity: 0.95;
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.place.drag-over .drink {
+  outline: 2px dashed #ffd166;
+  outline-offset: -2px;
+  border-radius: 12px;
+  background: rgba(255, 209, 102, 0.08);
+}
+
+.place.drag-over .pedestal {
+  filter: brightness(1.15);
+}
+
+/* ---------- "Sure?" remove button ---------- */
+.remove-btn.confirm {
+  background: #ff4d6d;
+}
+
+/* ---------- "paid version coming soon" popup ---------- */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(10, 8, 16, 0.8);
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 420px;
+  padding: 28px 24px;
+  background: #1e1a2b;
+  border: 1px solid #ffd166;
+  border-radius: 20px;
+  text-align: left;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+
+.modal-box h2 {
+  margin-top: 0;
+  text-align: center;
+  color: #ffd166;
+}
+
+.modal-box ul {
+  padding-left: 20px;
+  line-height: 1.9;
+}
+
+.modal-box button {
+  display: block;
+  margin: 20px auto 0;
+}

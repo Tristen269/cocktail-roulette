@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <a class="badge" href="" target="_blank" rel="noopener noreferrer">Paid version coming soon</a>
+  <a class="badge" id="paid-badge" href="#">Paid version coming soon</a>
   <div class="container">
     <h1>Cocktail Roulette</h1>
 
@@ -90,6 +90,23 @@
       </div>
     <% } %>
   </div>
+
+  <!-- "paid version coming soon" popup -->
+  <div id="paid-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="paid-title">
+    <div class="modal-box">
+      <h2 id="paid-title">Paid version coming soon</h2>
+      <p>Here's what's planned:</p>
+      <ul>
+        <li>More saves (5 or unlimited)</li>
+        <li>Unlimited daily spins</li>
+        <li>Filter drinks by spirit or ingredient</li>
+        <li>Accounts, so your saves follow you across devices</li>
+        <li>Custom lists like "date night"</li>
+      </ul>
+      <button type="button" id="close-modal">Got it</button>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script src="/script.js"></script>
 

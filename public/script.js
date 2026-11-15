@@ -51,6 +51,98 @@ function hideDrinkDetails() {
   document.getElementById("drink-details").classList.add("hidden");
 }
 
+/* ---------- drag and drop (mouse and touch) ---------- */
+
+let suppressClick = false; // stops a drag from also counting as a tap
+
+function placeAt(x, y) {
+  const el = document.elementFromPoint(x, y);
+  return el ? el.closest(".place") : null;
+}
+
+function slotIndexOf(place) {
+  const box = place ? place.querySelector(".drink") : null;
+  return box ? parseInt(box.id.replace("drink-", ""), 10) : -1;
+}
+
+// Swap two slots. If the target is empty, the drink just moves there.
+function swapSlots(from, to) {
+  if (from === to || from < 0 || to < 0) return;
+  const saves = getSaves();
+  const temp = saves[from];
+  saves[from] = saves[to];
+  saves[to] = temp;
+  setSaves(saves);
+  renderSaves();
+}
+
+function enableDrag(img, fromIndex) {
+  img.draggable = false;
+
+  img.addEventListener("pointerdown", function (e) {
+    if (e.button !== 0) return;
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    let ghost = null;
+    let hoverPlace = null;
+
+    if (img.setPointerCapture) {
+      try { img.setPointerCapture(e.pointerId); } catch (err) {}
+    }
+
+    function onMove(ev) {
+      if (!ghost) {
+        // ignore tiny wiggles so a normal tap still opens the details
+        if (Math.hypot(ev.clientX - startX, ev.clientY - startY) < 8) return;
+        const rect = img.getBoundingClientRect();
+        ghost = img.cloneNode();
+        ghost.className = "drag-ghost";
+        ghost.style.width = rect.width + "px";
+        ghost.style.height = rect.height + "px";
+        document.body.appendChild(ghost);
+        img.classList.add("dragging");
+      }
+
+      ghost.style.left = ev.clientX + "px";
+      ghost.style.top = ev.clientY + "px";
+
+      const place = placeAt(ev.clientX, ev.clientY);
+      if (place !== hoverPlace) {
+        if (hoverPlace) hoverPlace.classList.remove("drag-over");
+        if (place) place.classList.add("drag-over");
+        hoverPlace = place;
+      }
+    }
+
+    function finish(ev, cancelled) {
+      img.removeEventListener("pointermove", onMove);
+      img.removeEventListener("pointerup", onUp);
+      img.removeEventListener("pointercancel", onCancel);
+
+      if (!ghost) return; // never really moved: this was just a tap
+
+      suppressClick = true;
+      setTimeout(function () { suppressClick = false; }, 0);
+
+      const target = cancelled ? null : placeAt(ev.clientX, ev.clientY);
+      ghost.remove();
+      img.classList.remove("dragging");
+      if (hoverPlace) hoverPlace.classList.remove("drag-over");
+      if (target) swapSlots(fromIndex, slotIndexOf(target));
+    }
+
+    function onUp(ev) { finish(ev, false); }
+    function onCancel(ev) { finish(ev, true); }
+
+    img.addEventListener("pointermove", onMove);
+    img.addEventListener("pointerup", onUp);
+    img.addEventListener("pointercancel", onCancel);
+  });
+}
+
+/* ---------- podium ---------- */
+
 function renderSaves() {
   const saves = getSaves();
 
@@ -70,20 +162,37 @@ function renderSaves() {
     const img = document.createElement("img");
     img.src = drink.image;
     img.alt = drink.name;
-    img.style.cursor = "pointer";
     img.addEventListener("click", function () {
+      if (suppressClick) return;
       showDrinkDetails(drink);
     });
+    enableDrag(img, i);
 
     const name = document.createElement("p");
     name.className = "drink-name";
     name.textContent = drink.name;
 
+    // "Are you sure?" - first tap arms the button, second tap removes
     const remove = document.createElement("button");
     remove.type = "button";
     remove.className = "remove-btn";
     remove.textContent = "Remove";
+    let confirmTimer = null;
+
+    function disarm() {
+      remove.classList.remove("confirm");
+      remove.textContent = "Remove";
+      confirmTimer = null;
+    }
+
     remove.addEventListener("click", function () {
+      if (!remove.classList.contains("confirm")) {
+        remove.classList.add("confirm");
+        remove.textContent = "Sure?";
+        confirmTimer = setTimeout(disarm, 4000);
+        return;
+      }
+      clearTimeout(confirmTimer);
       const current = getSaves();
       current[i] = null; // empty just this slot, leave the others where they are
       setSaves(current);
@@ -123,6 +232,8 @@ renderSaves();
 
 document.getElementById("close-details").addEventListener("click", hideDrinkDetails);
 
+/* ---------- saves tab ---------- */
+
 const savesTab = document.getElementById("saves-tab");
 const savesView = document.getElementById("saves");
 const cardView = document.getElementById("card-view");
@@ -140,3 +251,34 @@ savesTab.addEventListener("click", function () {
 });
 
 showSaves(!cardView);
+
+/* ---------- "paid version coming soon" popup ---------- */
+
+const paidBadge = document.getElementById("paid-badge");
+const paidModal = document.getElementById("paid-modal");
+const closeModalBtn = document.getElementById("close-modal");
+
+function openModal() {
+  paidModal.classList.remove("hidden");
+  closeModalBtn.focus();
+}
+
+function closeModal() {
+  paidModal.classList.add("hidden");
+  paidBadge.focus();
+}
+
+paidBadge.addEventListener("click", function (e) {
+  e.preventDefault();
+  openModal();
+});
+
+closeModalBtn.addEventListener("click", closeModal);
+
+paidModal.addEventListener("click", function (e) {
+  if (e.target === paidModal) closeModal(); // click on the dark background
+});
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape" && !paidModal.classList.contains("hidden")) closeModal();
+});
