@@ -441,3 +441,84 @@ a.badge:hover {
   display: block;
   margin: 20px auto 0;
 }
+
+
+/* ---------- share button ---------- */
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* same pink-to-orange outline as the Save button, dark purple inside */
+.share-btn {
+  padding: 12px 30px;
+  color: #ffb3d9;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(#2b2140, #2b2140) padding-box,
+    linear-gradient(135deg, #ff6fb5, #ff9a5a) border-box;
+}
+
+.share-note {
+  margin: 8px 0 0;
+  color: #b8a9d1;
+  font-size: 0.9rem;
+}
+
+.share-note:empty {
+  display: none;
+}
+
+/* shared top 3 page */
+.btn-link {
+  display: inline-block;
+  padding: 14px 32px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #ff6fb5, #ff9a5a);
+}
+
+.top-page .drink img {
+  cursor: pointer;
+  touch-action: auto;
+}
+
+
+/* ---------- share icon in the corner of the saves card ---------- */
+#saves {
+  position: relative;
+}
+
+.share-icon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffb3d9;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background:
+    linear-gradient(#2b2140, #2b2140) padding-box,
+    linear-gradient(135deg, #ff6fb5, #ff9a5a) border-box;
+}
+
+.share-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

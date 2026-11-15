@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= share.title %></title>
+  <meta name="description" content="<%= share.description %>">
+  <meta property="og:title" content="<%= share.title %>">
+  <meta property="og:description" content="<%= share.description %>">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<%= share.url %>">
+  <% if (share.image) { %>
+  <meta property="og:image" content="<%= share.image %>">
+  <% } %>
+  <meta name="twitter:card" content="<%= share.image ? 'summary_large_image' : 'summary' %>">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="top-page">
+  <div class="container">
+    <h1>Cocktail Roulette</h1>
+
+    <div id="saves">
+      <h2>Top Cocktails</h2>
+      <div id="podium">
+        <% [
+          { label: 2, cls: "silver", drink: top.silver },
+          { label: 1, cls: "gold", drink: top.gold },
+          { label: 3, cls: "bronze", drink: top.bronze }
+        ].forEach(function (p) { %>
+          <div class="place">
+            <div class="drink">
+              <% if (p.drink) { %>
+                <a href="/drink/<%= p.drink.id %>"><img src="<%= p.drink.image %>" alt="<%= p.drink.name %>" /></a>
+                <p class="drink-name"><%= p.drink.name %></p>
+              <% } else { %>
+                <span class="empty-text">Empty</span>
+              <% } %>
+            </div>
+            <div class="pedestal <%= p.cls %>"><%= p.label %></div>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+
+    <p class="share-note">Tap a drink to see the recipe.</p>
+    <a class="btn-link" href="/random">Spin your own</a>
+  </div>
+
+  <script data-goatcounter="https://cocktailroulette.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

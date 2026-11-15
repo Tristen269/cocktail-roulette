@@ -282,3 +282,87 @@ paidModal.addEventListener("click", function (e) {
 document.addEventListener("keydown", function (e) {
   if (e.key === "Escape" && !paidModal.classList.contains("hidden")) closeModal();
 });
+
+
+/* ---------- sharing ---------- */
+
+// shows a short message, then clears it after 3 seconds
+function flashMessage(el, text) {
+  el.textContent = text;
+  setTimeout(function () { el.textContent = ""; }, 3000);
+}
+
+// Opens the phone's share sheet when there is one, otherwise copies the link.
+async function shareLink(title, text, path, messageEl) {
+  const url = location.origin + path;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: title, text: text, url: url });
+      return;
+    } catch (e) {
+      if (e && e.name === "AbortError") return; // they closed the share sheet
+      // anything else: fall through and copy the link instead
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(url);
+    flashMessage(messageEl, "Link copied!");
+  } catch (e) {
+    window.prompt("Copy this link:", url);
+  }
+}
+
+// "Share" on a drink card
+const shareBtn = document.getElementById("share-btn");
+if (shareBtn) {
+  shareBtn.addEventListener("click", function () {
+    const name = shareBtn.dataset.name;
+    shareLink(
+      name + " | Cocktail Roulette",
+      "Try the " + name + " on Cocktail Roulette",
+      "/drink/" + shareBtn.dataset.id,
+      document.getElementById("save-message")
+    );
+  });
+}
+
+// share icon on the podium (only shown once at least one drink is saved)
+const shareTopBtn = document.getElementById("share-top");
+
+function updateShareTop() {
+  const hasSaves = getSaves().some(function (d) { return d !== null; });
+  shareTopBtn.classList.toggle("hidden", !hasSaves);
+}
+
+if (shareTopBtn) {
+  updateShareTop();
+
+  // the podium is redrawn on every save, remove and drag, so re-check each time
+  new MutationObserver(updateShareTop).observe(
+    document.getElementById("podium"),
+    { childList: true, subtree: true }
+  );
+
+  shareTopBtn.addEventListener("click", function () {
+    const message = document.getElementById("share-top-message");
+    const saves = getSaves();
+    const params = [];
+
+    ["gold", "silver", "bronze"].forEach(function (slot, i) {
+      if (saves[i] && /^\d+$/.test(String(saves[i].id))) {
+        params.push(slot + "=" + saves[i].id);
+      }
+    });
+
+    if (params.length === 0) return;
+
+    shareLink(
+      "My top cocktails | Cocktail Roulette",
+      "Here's my cocktail podium. What's on yours?",
+      "/top?" + params.join("&"),
+      message
+    );
+  });
+}
